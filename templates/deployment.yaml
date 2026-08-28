@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.metadata.name }}
   namespace: {{ .Values.namespace }}
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app: nginx
