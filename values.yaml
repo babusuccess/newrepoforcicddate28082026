@@ -2,7 +2,7 @@ namespace: prod
 
 image:
   repository: babugyadav/nginx
-  tag: "33159431552"
+  tag: "33159462094"
 
 metadata:
   name: nginx-deployment
