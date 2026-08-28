@@ -1,0 +1,8 @@
+namespace: prod
+
+image:
+  repository: babugyadav/nginx
+  tag: "v1"
+
+metadata:
+  name: nginx-deployment
