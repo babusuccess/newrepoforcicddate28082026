@@ -1,21 +1,22 @@
 # CI/CD using GitHub Actions
 name: CI
 
-# Run the workflow when code is pushed to main.
-# Ignore changes to the Helm chart and README.md.
+# Run CI when application-related files are pushed to main.
+# Ignore values.yaml so the workflow does not trigger itself
+# when the second job updates the image tag.
 on:
   push:
     branches:
       - main
     paths-ignore:
-      - 'helm/**'
+      - 'values.yaml'
       - 'README.md'
 
 jobs:
 
-  # -------------------------------
-  # Build and Push Docker Image
-  # -------------------------------
+  # ==========================================
+  # JOB 1: Build and Push Docker Image
+  # ==========================================
   build:
     runs-on: ubuntu-latest
 
@@ -41,9 +42,9 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/nginx:${{ github.run_id }}
 
-  # -------------------------------
-  # Update Helm values.yaml
-  # -------------------------------
+  # ==========================================
+  # JOB 2: Update image tag in values.yaml
+  # ==========================================
   update-newtag-in-helm-chart:
     runs-on: ubuntu-latest
 
@@ -56,15 +57,19 @@ jobs:
         with:
           token: ${{ secrets.TOKEN }}
 
-      - name: Update tag in Helm chart
+      - name: Update tag in values.yaml
         run: |
           sed -i 's/^[[:space:]]*tag:.*/  tag: "${{ github.run_id }}"/' values.yaml
+          echo "Updated values.yaml:"
           cat values.yaml
 
       - name: Commit and push changes
         run: |
           git config user.email "babusuccess@gmail.com"
           git config user.name "babusuccess"
+
           git add values.yaml
-          git commit -m "Update tag in Helm chart"
+
+          git commit -m "Update image tag to ${{ github.run_id }}"
+
           git push
